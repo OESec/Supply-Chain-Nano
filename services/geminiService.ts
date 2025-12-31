@@ -39,16 +39,17 @@ export const analyzeVendorRisk = async (
 
       Consider:
       1. Geopolitical stability of the location.
-      2. Typical cybersecurity risks for this industry.
+      2. Search for a timeline of major cyberattacks, ransomware incidents, and CVE vulnerabilities associated with ${name} over the last 10 years.
       3. General financial volatility for this sector.
       
-      Provide a realistic risk assessment based on general public knowledge about this sector and region.
+      Provide a realistic risk assessment based on search results and general public knowledge about this sector and region.
     `;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
+        tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
         responseSchema: riskAnalysisSchema,
         temperature: 0.3, // Keep it analytical
