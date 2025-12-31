@@ -5,24 +5,6 @@ import { RiskLevel, RiskScore } from "../types";
 // NOTE: In a production environment, this should be proxied through a backend to protect the API key.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
-const riskAnalysisSchema: Schema = {
-  type: Type.OBJECT,
-  properties: {
-    overall: { type: Type.NUMBER, description: "Overall risk score from 0 to 100" },
-    level: { type: Type.STRING, enum: ["Low", "Medium", "High", "Critical"], description: "Risk classification" },
-    cyberScore: { type: Type.NUMBER, description: "Cybersecurity risk score 0-100" },
-    financialScore: { type: Type.NUMBER, description: "Financial stability score 0-100" },
-    geopoliticalScore: { type: Type.NUMBER, description: "Geopolitical risk score 0-100" },
-    summary: { type: Type.STRING, description: "A concise 2-sentence summary of the vendor's risk profile" },
-    keyFactors: { 
-      type: Type.ARRAY, 
-      items: { type: Type.STRING }, 
-      description: "List of 3-5 key risk factors identified" 
-    }
-  },
-  required: ["overall", "level", "cyberScore", "financialScore", "geopoliticalScore", "summary", "keyFactors"]
-};
-
 export const analyzeVendorRisk = async (
   name: string,
   industry: string,
@@ -43,6 +25,17 @@ export const analyzeVendorRisk = async (
       3. General financial volatility for this sector.
       
       Provide a realistic risk assessment based on search results and general public knowledge about this sector and region.
+
+      Output the result as a raw JSON object (no markdown formatting) matching this structure:
+      {
+        "overall": number (0-100),
+        "level": "Low" | "Medium" | "High" | "Critical",
+        "cyberScore": number (0-100),
+        "financialScore": number (0-100),
+        "geopoliticalScore": number (0-100),
+        "summary": "A concise 2-sentence summary of the vendor's risk profile",
+        "keyFactors": ["List of 3-5 key risk factors identified"]
+      }
     `;
 
     const response = await ai.models.generateContent({
@@ -50,14 +43,16 @@ export const analyzeVendorRisk = async (
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
-        responseMimeType: "application/json",
-        responseSchema: riskAnalysisSchema,
-        temperature: 0.3, // Keep it analytical
+        // responseMimeType and responseSchema are not supported with tools
+        temperature: 0.3, 
       }
     });
 
-    const text = response.text;
+    let text = response.text;
     if (!text) throw new Error("No response from AI");
+
+    // Clean up markdown code blocks if present
+    text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
 
     const data = JSON.parse(text);
 
