@@ -6,6 +6,7 @@ import VendorList from './components/VendorList';
 import SupplyChainMap from './components/SupplyChainMap';
 import Alerts from './components/Alerts';
 import Settings from './components/Settings';
+import BulkUpload from './components/BulkUpload';
 import { MOCK_VENDORS, MOCK_ALERTS } from './constants';
 import { Vendor, Alert } from './types';
 
@@ -43,10 +44,12 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Layout alertCount={alerts.filter(a => !a.isRead).length}>
+      <Layout alertCount={alerts.filter(a => !a.isRead).length} vendorCount={vendors.length}>
         <Routes>
           <Route path="/" element={<Dashboard vendors={vendors} alerts={alerts} />} />
           <Route path="/vendors" element={<VendorList vendors={vendors} setVendors={setVendors} />} />
+          <Route path="/vendors/upload" element={<BulkUpload />} />
+          <Route path="/bulk-upload" element={<BulkUpload />} />
           <Route path="/map" element={<SupplyChainMap vendors={vendors} />} />
           <Route path="/alerts" element={<Alerts alerts={alerts} vendors={vendors} setAlerts={setAlerts} />} />
           <Route path="/settings" element={<Settings />} />

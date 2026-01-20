@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Alert, Vendor } from '../types';
-import { AlertTriangle, Info, CheckCircle, RefreshCcw } from 'lucide-react';
+import { AlertTriangle, Info, CheckCircle, RefreshCcw, ExternalLink, Link as LinkIcon } from 'lucide-react';
 import { predictDisruptions } from '../services/geminiService';
 
 interface AlertsProps {
@@ -13,21 +14,33 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
   const [analyzing, setAnalyzing] = useState(false);
 
   const handleScanForDisruptions = async () => {
+    if (vendors.length === 0) return;
     setAnalyzing(true);
-    // Prepare vendor data for AI
     const vendorList = vendors.map(v => ({ name: v.name, location: v.location }));
     
+    // Safety timeout to prevent infinite UI hang
+    const scanTimeout = new Promise((resolve) => {
+        setTimeout(() => resolve('timeout'), 50000); 
+    });
+    
     try {
-        const result = await predictDisruptions(vendorList);
-        if (result && result.title) {
+        const result: any = await Promise.race([
+            predictDisruptions(vendorList),
+            scanTimeout
+        ]);
+
+        if (result === 'timeout') {
+            console.warn("Disruption scan timed out after 50s.");
+        } else if (result && result.title) {
             const newAlert: Alert = {
                 id: Date.now().toString(),
                 title: result.title,
                 severity: result.severity as any,
                 date: new Date().toISOString(),
-                relatedVendorIds: [], // Would analyze names to match IDs in real app
+                relatedVendorIds: [],
                 description: result.description,
-                isRead: false
+                isRead: false,
+                sources: result.sources
             };
             setAlerts(prev => [newAlert, ...prev]);
         }
@@ -59,11 +72,11 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
         </div>
         <button 
           onClick={handleScanForDisruptions}
-          disabled={analyzing}
+          disabled={analyzing || vendors.length === 0}
           className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
         >
           <RefreshCcw className={`w-4 h-4 ${analyzing ? 'animate-spin' : ''}`} />
-          <span>{analyzing ? 'Scanning News...' : 'Scan for Disruptions'}</span>
+          <span>{analyzing ? 'Scanning Live News...' : 'Scan for Disruptions'}</span>
         </button>
       </div>
 
@@ -93,16 +106,41 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
                         <h3 className={`text-lg font-semibold ${alert.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
                             {alert.title}
                         </h3>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">
-                            {new Date(alert.date).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center space-x-3 text-xs text-gray-500 whitespace-nowrap">
+                            <span>{new Date(alert.date).toLocaleDateString()}</span>
+                            {!alert.isRead && alert.sources && (
+                              <span className="flex items-center text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-medium">
+                                <LinkIcon className="w-3 h-3 mr-1" /> Grounded News
+                              </span>
+                            )}
+                        </div>
                     </div>
-                    <p className="text-gray-600 mt-1">{alert.description}</p>
+                    <p className="text-gray-600 mt-2 text-sm leading-relaxed">{alert.description}</p>
                     
+                    {/* Sources Section */}
+                    {alert.sources && alert.sources.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-50">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sources & References</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {alert.sources.map((source, idx) => (
+                            <a 
+                              key={idx} 
+                              href={source.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center space-x-2 text-xs text-indigo-600 hover:text-indigo-800 hover:underline group truncate"
+                            >
+                              <ExternalLink className="w-3 h-3 flex-shrink-0 text-indigo-400 group-hover:text-indigo-600" />
+                              <span className="truncate">{source.title || source.url}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {alert.relatedVendorIds.length > 0 && (
                         <div className="mt-3 flex items-center space-x-2">
                             <span className="text-xs font-semibold text-gray-400 uppercase">Impacted:</span>
-                            {/* In a real app, map IDs to names. Using placeholder logic. */}
                             <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">Acme Chipworks</span>
                         </div>
                     )}

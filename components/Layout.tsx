@@ -5,22 +5,31 @@ import { Link, useLocation } from 'react-router-dom';
 interface LayoutProps {
   children: React.ReactNode;
   alertCount: number;
+  vendorCount: number;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, alertCount }) => {
+const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { name: 'Vendors', icon: Users, path: '/vendors' },
+    { name: 'Vendors', icon: Users, path: '/vendors', badge: vendorCount > 0 ? vendorCount : undefined },
     { name: 'Supply Chain Map', icon: Map, path: '/map' },
     { name: 'Alerts', icon: Bell, path: '/alerts', badge: alertCount > 0 ? alertCount : undefined },
     { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Format current date for display
+  const currentDate = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -117,10 +126,23 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount }) => {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto pt-16 md:pt-0">
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+      <main className="flex-1 overflow-y-auto pt-16 md:pt-0 flex flex-col">
+        <div className="flex-1 max-w-7xl mx-auto p-4 md:p-8 w-full">
           {children}
         </div>
+        
+        {/* Footer with Generation Date */}
+        <footer className="w-full max-w-7xl mx-auto px-4 md:px-8 py-6 mt-auto border-t border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-2 text-slate-400 text-sm">
+              <ShieldCheck className="w-4 h-4" />
+              <span>&copy; {new Date().getFullYear()} RiskGuard AI. All rights reserved.</span>
+            </div>
+            <div className="text-sm text-slate-500">
+              Platform active: <span className="font-semibold text-slate-700">{currentDate}</span>
+            </div>
+          </div>
+        </footer>
       </main>
 
       {/* About Modal */}

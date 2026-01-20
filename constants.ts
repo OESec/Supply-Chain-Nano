@@ -16,7 +16,14 @@ export const MOCK_VENDORS: Vendor[] = [
       geopoliticalScore: 45,
       lastUpdated: "2023-10-25T10:00:00Z",
       summary: "High operational efficiency but significant geopolitical exposure due to regional tensions.",
-      keyFactors: ["Regional geopolitical tension", "High dependency tier", "Robust cyber defences"]
+      keyFactors: [
+        { text: "Regional geopolitical tension increasing in South China Sea", sourceUrl: "https://reuters.com/topics/asia-pacific" },
+        { text: "High dependency tier (Tier 1 Supplier)", sourceUrl: "https://example.com/internal-audit" },
+        { text: "Robust cyber defences with ISO 27001 certification", sourceUrl: "https://example.com/acme/compliance" }
+      ],
+      cyberDetails: { cveCount: 2, recentBreach: false, sslGrade: "A", darkWebMentions: false },
+      financialDetails: { stockTrend: "Stable", creditRating: "AA", bankruptcyRisk: "Low" },
+      geopoliticalDetails: { conflictZone: true, tradeSanctions: false, politicalStability: "Unstable" }
     },
     integrationStatus: "Connected",
     tier: 1,
@@ -46,7 +53,14 @@ export const MOCK_VENDORS: Vendor[] = [
       geopoliticalScore: 95,
       lastUpdated: "2023-10-24T14:30:00Z",
       summary: "Stable partner with strong EU compliance adherence and financial health.",
-      keyFactors: ["Strong regulatory compliance", "Stable region", "Diversified fleet"]
+      keyFactors: [
+        { text: "Strong regulatory compliance with EU Supply Chain Act", sourceUrl: "https://europa.eu/news/supply-chain" },
+        { text: "Stable region with low political risk", sourceUrl: "https://worldbank.org/germany" },
+        { text: "Diversified fleet reducing single-point failure", sourceUrl: "https://greenleaf.com/about" }
+      ],
+      cyberDetails: { cveCount: 0, recentBreach: false, sslGrade: "A+", darkWebMentions: false },
+      financialDetails: { stockTrend: "Up 5% YoY", creditRating: "AAA", bankruptcyRisk: "Low" },
+      geopoliticalDetails: { conflictZone: false, tradeSanctions: false, politicalStability: "Stable" }
     },
     integrationStatus: "Connected",
     tier: 1,
@@ -74,7 +88,14 @@ export const MOCK_VENDORS: Vendor[] = [
       geopoliticalScore: 20,
       lastUpdated: "2023-10-20T09:15:00Z",
       summary: "Critical risk due to political instability and potential labour compliance issues.",
-      keyFactors: ["Political instability", "Supply chain opacity", "Infrastructure challenges"]
+      keyFactors: [
+        { text: "Political instability affecting mining regions", sourceUrl: "https://news.un.org/en/tags/drc" },
+        { text: "Supply chain opacity regarding labor practices", sourceUrl: "https://amnesty.org/en/location/africa/east-africa-the-horn-and-great-lakes/democratic-republic-of-the-congo/" },
+        { text: "Infrastructure challenges delaying shipments", sourceUrl: "https://logistics.example.com/drc-report" }
+      ],
+      cyberDetails: { cveCount: 12, recentBreach: true, sslGrade: "C", darkWebMentions: true },
+      financialDetails: { stockTrend: "Volatile", creditRating: "B-", bankruptcyRisk: "High" },
+      geopoliticalDetails: { conflictZone: true, tradeSanctions: true, politicalStability: "Critical" }
     },
     integrationStatus: "Manual",
     tier: 2,
@@ -105,7 +126,14 @@ export const MOCK_VENDORS: Vendor[] = [
       geopoliticalScore: 98,
       lastUpdated: "2023-10-26T11:00:00Z",
       summary: "Very low risk profile with industry-leading security certifications.",
-      keyFactors: ["SOC2 Compliant", "US Jurisdiction", "High availability"]
+      keyFactors: [
+        { text: "SOC2 Compliant", sourceUrl: "https://softserve.example.com/security" },
+        { text: "US Jurisdiction ensures legal recourse", sourceUrl: "https://law.example.com/tech" },
+        { text: "High availability (99.99% Uptime)", sourceUrl: "https://status.softserve.example.com" }
+      ],
+      cyberDetails: { cveCount: 0, recentBreach: false, sslGrade: "A", darkWebMentions: false },
+      financialDetails: { stockTrend: "Up 12% YoY", creditRating: "A", bankruptcyRisk: "Low" },
+      geopoliticalDetails: { conflictZone: false, tradeSanctions: false, politicalStability: "Stable" }
     },
     integrationStatus: "Connected",
     tier: 3,

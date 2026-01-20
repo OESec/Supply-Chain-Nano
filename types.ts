@@ -1,8 +1,33 @@
+
 export enum RiskLevel {
   LOW = 'Low',
   MEDIUM = 'Medium',
   HIGH = 'High',
   CRITICAL = 'Critical'
+}
+
+export interface CyberDetails {
+  cveCount: number;
+  recentBreach: boolean;
+  sslGrade: string; // "A" | "B" | "C" | "D" | "F"
+  darkWebMentions: boolean;
+}
+
+export interface FinancialDetails {
+  stockTrend: string; // e.g., "Down 15% YoY" or "Private"
+  creditRating: string; // e.g., "AAA"
+  bankruptcyRisk: string; // "Low" | "Medium" | "High"
+}
+
+export interface GeopoliticalDetails {
+  conflictZone: boolean;
+  tradeSanctions: boolean;
+  politicalStability: string; // "Stable" | "Unstable" | "Critical"
+}
+
+export interface RiskFactor {
+  text: string;
+  sourceUrl?: string;
 }
 
 export interface RiskScore {
@@ -13,7 +38,10 @@ export interface RiskScore {
   geopoliticalScore: number;
   lastUpdated: string;
   summary: string;
-  keyFactors: string[];
+  keyFactors: RiskFactor[];
+  cyberDetails?: CyberDetails;
+  financialDetails?: FinancialDetails;
+  geopoliticalDetails?: GeopoliticalDetails;
 }
 
 export interface Note {
@@ -51,6 +79,7 @@ export interface Alert {
   relatedVendorIds: string[];
   description: string;
   isRead: boolean;
+  sources?: { title: string; url: string }[];
 }
 
 export interface AppState {

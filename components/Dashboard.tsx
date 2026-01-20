@@ -210,8 +210,9 @@ const Dashboard: React.FC<DashboardProps> = ({ vendors, alerts }) => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                     {vendors
+                        .filter(vendor => vendor.riskProfile.level === RiskLevel.HIGH || vendor.riskProfile.level === RiskLevel.CRITICAL)
                         .sort((a,b) => b.riskProfile.overall - a.riskProfile.overall)
-                        .slice(0, 5) // Top 5 risky
+                        .slice(0, 5) // Top 5 high-risk
                         .map(vendor => (
                         <tr key={vendor.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 font-medium text-gray-900">
@@ -259,6 +260,13 @@ const Dashboard: React.FC<DashboardProps> = ({ vendors, alerts }) => {
                             </td>
                         </tr>
                     ))}
+                    {vendors.filter(v => v.riskProfile.level === RiskLevel.HIGH || v.riskProfile.level === RiskLevel.CRITICAL).length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500 italic">
+                          No high-risk vendors identified.
+                        </td>
+                      </tr>
+                    )}
                 </tbody>
             </table>
         </div>
