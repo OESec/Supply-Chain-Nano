@@ -310,6 +310,8 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
       });
   };
 
+  const isDescriptionTooLong = newVendor.description.length > 500;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -588,8 +590,7 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                       <textarea 
                         required 
-                        maxLength={500}
-                        className={`w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none h-24 ${formErrors.description ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                        className={`w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none h-24 ${(formErrors.description || isDescriptionTooLong) ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
                         value={newVendor.description} 
                         onChange={e => {
                             setNewVendor({...newVendor, description: e.target.value});
@@ -599,14 +600,24 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
                       ></textarea>
                       <div className="flex justify-between mt-1">
                         <p className="text-xs text-gray-500">Our AI will use this to assess initial risk.</p>
-                        <p className={`text-xs ${newVendor.description.length > 450 ? 'text-red-500' : 'text-gray-400'}`}>{newVendor.description.length}/500</p>
+                        <p className={`text-xs ${isDescriptionTooLong ? 'text-red-600 font-bold' : newVendor.description.length > 450 ? 'text-orange-500' : 'text-gray-400'}`}>
+                            {newVendor.description.length}/500
+                        </p>
                       </div>
-                      {formErrors.description && <p className="text-xs text-red-600 mt-1">{formErrors.description}</p>}
+                      {(formErrors.description || isDescriptionTooLong) && (
+                          <p className="text-xs text-red-600 mt-1">
+                              {formErrors.description || "Description exceeds 500 character limit. Please shorten to proceed."}
+                          </p>
+                      )}
                     </div>
 
                     <div className="flex justify-end space-x-3 mt-6">
                       <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">Cancel</button>
-                      <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700">
+                      <button 
+                        type="submit" 
+                        disabled={isDescriptionTooLong}
+                        className={`px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg transition-colors ${isDescriptionTooLong ? 'opacity-50 cursor-not-allowed bg-indigo-400' : 'hover:bg-indigo-700'}`}
+                      >
                         Review Details
                       </button>
                     </div>
