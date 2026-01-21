@@ -90,7 +90,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
         setTimeout(() => {
             setSentSuccess(false);
             setIsContactModalOpen(false);
-        }, 2500);
+        }, 5000);
 
     } catch (error) {
         console.error("EmailJS Error:", error);
@@ -459,7 +459,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Sent!</h2>
                         <p className="text-gray-500 dark:text-slate-400">
-                            Thanks for reaching out. A member of our enterprise team will be in touch within 24 hours.
+                            Thanks for reaching out. A member of our enterprise team will be in touch within 3 business days.
                         </p>
                     </div>
                 ) : (
