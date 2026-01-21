@@ -171,10 +171,10 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
       {/* About Modal */}
       {isAboutModalOpen && (
         <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white shadow-2xl max-w-5xl w-full relative overflow-y-auto max-h-[90vh] ring-1 ring-white/10">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl px-8 pb-8 pt-16 text-white shadow-2xl max-w-5xl w-full relative overflow-y-auto max-h-[90vh] ring-1 ring-white/10">
             <button 
               onClick={() => setIsAboutModalOpen(false)} 
-              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50"
             >
               <X className="w-6 h-6 text-white" />
             </button>
