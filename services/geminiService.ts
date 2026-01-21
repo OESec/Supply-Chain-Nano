@@ -2,8 +2,15 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { RiskLevel, RiskScore } from "../types";
 
-// Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize Gemini Client Lazily
+let ai: GoogleGenAI | null = null;
+
+const getAi = () => {
+  if (!ai) {
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  }
+  return ai;
+};
 
 // SECURITY: Basic sanitization to prevent prompt injection and break-out attempts
 const sanitize = (str: string): string => {
@@ -36,7 +43,7 @@ export const lookupVendorDetails = async (companyName: string) => {
       Output strictly as a JSON object with keys: "website", "industry", "location", "description".
     `;
 
-    const response = await ai.models.generateContent({
+    const response = await getAi().models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
@@ -116,7 +123,7 @@ export const analyzeVendorRisk = async (
       }
     `;
 
-    const response = await ai.models.generateContent({
+    const response = await getAi().models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
@@ -183,7 +190,7 @@ export const predictDisruptions = async (vendors: {id: string, name: string, loc
             IMPACTED_VENDORS: [Comma-separated list of exact vendor names from the provided list]
         `;
 
-        const response = await ai.models.generateContent({
+        const response = await getAi().models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: prompt,
             config: {
