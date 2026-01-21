@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Vendor, RiskLevel } from '../types';
-import { ZoomIn, ZoomOut, X, Globe, Shield, TrendingUp, Layers, FileText, AlertTriangle, Network, Map as MapIcon, ChevronLeft, Activity, Check, Link as LinkIcon } from 'lucide-react';
+import { ZoomIn, ZoomOut, X, Globe, Shield, TrendingUp, Layers, FileText, AlertTriangle, Network, Map as MapIcon, ChevronLeft, Activity, Check, Link as LinkIcon, Lock } from 'lucide-react';
 
 interface SupplyChainMapProps {
   vendors: Vendor[];
@@ -406,6 +405,20 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                 })}
             </svg>
           </div>
+
+          {/* Feature Coming Soon Overlay */}
+          <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center">
+             <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-2xl text-center border border-gray-200 dark:border-slate-800 max-w-md mx-4 animate-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Feature Coming Soon</h2>
+                <p className="text-gray-500 dark:text-slate-400">
+                    We are currently upgrading our geospatial visualization engine to support real-time shipment tracking and advanced risk heatmaps.
+                </p>
+             </div>
+          </div>
+
         </div>
 
         {/* Sidebar Panel */}
