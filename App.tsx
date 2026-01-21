@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -32,6 +33,26 @@ const App: React.FC = () => {
     }
   });
 
+  // Dark Mode State
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      const savedTheme = localStorage.getItem('riskguard_theme');
+      return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } catch (e) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('riskguard_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('riskguard_theme', 'light');
+    }
+  }, [darkMode]);
+
   // Persist vendors whenever they change
   useEffect(() => {
     localStorage.setItem('riskguard_vendors', JSON.stringify(vendors));
@@ -44,7 +65,12 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Layout alertCount={alerts.filter(a => !a.isRead).length} vendorCount={vendors.length}>
+      <Layout 
+        alertCount={alerts.filter(a => !a.isRead).length} 
+        vendorCount={vendors.length}
+        darkMode={darkMode}
+        toggleDarkMode={() => setDarkMode(!darkMode)}
+      >
         <Routes>
           <Route path="/" element={<Dashboard vendors={vendors} alerts={alerts} />} />
           <Route path="/vendors" element={<VendorList vendors={vendors} setVendors={setVendors} />} />

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Vendor, RiskLevel } from '../types';
 import { ZoomIn, ZoomOut, X, Globe, Shield, TrendingUp, Layers, FileText, AlertTriangle, Network, Map as MapIcon, ChevronLeft, Activity, Check, Link as LinkIcon } from 'lucide-react';
@@ -185,21 +186,21 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
     <div className="h-full flex flex-col">
       <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Supply Chain Map</h1>
-          <p className="text-gray-500">Visualising supplier dependencies and risk nodes.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Supply Chain Map</h1>
+          <p className="text-gray-500 dark:text-slate-400">Visualising supplier dependencies and risk nodes.</p>
         </div>
         
-        <div className="flex items-center bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex items-center bg-white dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
             <button 
                 onClick={() => setViewMode('relational')}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'relational' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'relational' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
             >
                 <Network className="w-4 h-4" />
                 <span>Relational</span>
             </button>
             <button 
                 onClick={() => setViewMode('world')}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'world' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'world' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
             >
                 <MapIcon className="w-4 h-4" />
                 <span>World Map</span>
@@ -207,23 +208,23 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 relative overflow-hidden flex">
+      <div className="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 relative overflow-hidden flex">
         <div 
-            className="flex-1 relative bg-slate-50 cursor-move"
+            className="flex-1 relative bg-slate-50 dark:bg-slate-950 cursor-move"
             onMouseMove={handleStageMouseMove}
             onMouseUp={handleStageMouseUp}
             onMouseLeave={handleStageMouseUp}
         >
           <div className="absolute top-4 right-4 flex flex-col space-y-2 z-10">
-            <button onClick={() => setZoom(prev => Math.min(prev + 0.2, 3))} className="p-2 bg-white shadow rounded hover:bg-gray-50 transition-colors">
-                <ZoomIn className="w-5 h-5 text-gray-600" />
+            <button onClick={() => setZoom(prev => Math.min(prev + 0.2, 3))} className="p-2 bg-white dark:bg-slate-800 shadow rounded hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                <ZoomIn className="w-5 h-5 text-gray-600 dark:text-slate-300" />
             </button>
-            <button onClick={() => setZoom(prev => Math.max(prev - 0.2, 0.5))} className="p-2 bg-white shadow rounded hover:bg-gray-50 transition-colors">
-                <ZoomOut className="w-5 h-5 text-gray-600" />
+            <button onClick={() => setZoom(prev => Math.max(prev - 0.2, 0.5))} className="p-2 bg-white dark:bg-slate-800 shadow rounded hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                <ZoomOut className="w-5 h-5 text-gray-600 dark:text-slate-300" />
             </button>
           </div>
           
-          <div className="w-full h-full flex items-center justify-center overflow-hidden bg-sky-50">
+          <div className="w-full h-full flex items-center justify-center overflow-hidden bg-sky-50 dark:bg-slate-900/50">
             <svg 
               width="800" 
               height="600" 
@@ -233,7 +234,7 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
             >
                 <defs>
                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="28" refY="3.5" orient="auto">
-                     <polygon points="0 0, 10 3.5, 0 7" fill="#cbd5e1" />
+                     <polygon points="0 0, 10 3.5, 0 7" className="fill-slate-300 dark:fill-slate-600" />
                    </marker>
                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
                      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
@@ -251,12 +252,12 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                 {/* --- PROFESSIONAL WORLD MAP VISUALIZATION --- */}
                 {viewMode === 'world' && (
                   <>
-                    <rect width="800" height="600" fill="#f0f9ff" />
+                    <rect width="800" height="600" className="fill-sky-50 dark:fill-slate-900" />
                     
                     {/* Map Container Group: Vertically centered (y=100) */}
                     <g transform="translate(0, 100)">
                         {/* High-Fidelity Vector Map (Equirectangular) */}
-                        <g fill="#cbd5e1" stroke="white" strokeWidth="0.5">
+                        <g className="fill-slate-300 dark:fill-slate-700 stroke-white dark:stroke-slate-800" strokeWidth="0.5">
                              {/* North America */}
                              <path d="M50 80 L70 60 L100 55 L150 45 L200 45 L250 40 L260 70 L240 90 L220 110 L190 120 L180 150 L160 180 L140 160 L120 120 L80 110 Z" />
                              <path d="M120 50 L140 40 L160 45 L150 60 L130 60 Z" /> {/* Greenland-ish */}
@@ -285,11 +286,11 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                              <path d="M680 320 L700 330 L690 340 Z" /> {/* NZ */}
                              
                              {/* Antarctica */}
-                             <path d="M150 380 L650 380 L620 370 L500 360 L300 360 L180 370 Z" fill="#e2e8f0" />
+                             <path d="M150 380 L650 380 L620 370 L500 360 L300 360 L180 370 Z" className="fill-slate-200 dark:fill-slate-800" />
                         </g>
 
                         {/* Grid Lines Overlay */}
-                        <g stroke="#94a3b8" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.3">
+                        <g className="stroke-slate-400 dark:stroke-slate-600" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.3">
                             {[0, 100, 200, 300, 400].map((y, i) => (
                                <line key={`lat-${i}`} x1="0" y1={y} x2="800" y2={y} />
                             ))}
@@ -299,8 +300,8 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                         </g>
                         
                          {/* Prime Meridian & Equator Highlights */}
-                        <line x1="400" y1="0" x2="400" y2="400" stroke="#64748b" strokeWidth="1" opacity="0.4" />
-                        <line x1="0" y1="200" x2="800" y2="200" stroke="#64748b" strokeWidth="1" opacity="0.4" />
+                        <line x1="400" y1="0" x2="400" y2="400" className="stroke-slate-500" strokeWidth="1" opacity="0.4" />
+                        <line x1="0" y1="200" x2="800" y2="200" className="stroke-slate-500" strokeWidth="1" opacity="0.4" />
                     </g>
                   </>
                 )}
@@ -314,7 +315,7 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                             key={`link-${vendor.id}`}
                             x1={centerX} y1={centerY}
                             x2={pos.x} y2={pos.y}
-                            stroke="#cbd5e1"
+                            className="stroke-slate-300 dark:stroke-slate-600"
                             strokeWidth="2"
                             strokeDasharray={vendor.integrationStatus === 'Manual' ? "5,5" : "0"}
                             markerEnd="url(#arrowhead)"
@@ -376,10 +377,9 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                             <text 
                                 x={pos.x} y={pos.y + 35} 
                                 textAnchor="middle" 
-                                fill={isHovered ? "#1e293b" : "#475569"} 
                                 fontSize={isHovered ? "13" : "12"} 
                                 fontWeight={isHovered ? "700" : "600"}
-                                className="transition-all duration-300 select-none shadow-sm font-sans"
+                                className={`transition-all duration-300 select-none shadow-sm font-sans ${isHovered ? 'fill-slate-800 dark:fill-white' : 'fill-slate-600 dark:fill-slate-400'}`}
                             >
                                 {vendor.name}
                             </text>
@@ -392,12 +392,11 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                                         width="170" 
                                         height="24" 
                                         rx="12" 
-                                        fill="white" 
-                                        stroke="#e2e8f0" 
+                                        className="fill-white dark:fill-slate-800 stroke-slate-200 dark:stroke-slate-700"
                                         strokeWidth="1"
                                         filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
                                     />
-                                    <text x={pos.x} y={pos.y + 61} textAnchor="middle" fill="#64748b" fontSize="11" fontStyle="italic" className="select-none pointer-events-none">
+                                    <text x={pos.x} y={pos.y + 61} textAnchor="middle" fontSize="11" fontStyle="italic" className="select-none pointer-events-none fill-slate-500 dark:fill-slate-400">
                                         "{latestNote.content.length > 24 ? latestNote.content.substring(0, 24) + '...' : latestNote.content}"
                                     </text>
                                 </g>
@@ -411,37 +410,37 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
 
         {/* Sidebar Panel */}
         <div 
-            className={`w-80 border-l border-gray-200 bg-white p-6 overflow-y-auto absolute right-0 top-0 bottom-0 shadow-xl transition-transform duration-300 transform ${selectedVendor && !isProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}
+            className={`w-80 border-l border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 overflow-y-auto absolute right-0 top-0 bottom-0 shadow-xl transition-transform duration-300 transform ${selectedVendor && !isProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}
             onMouseEnter={handleSidebarMouseEnter}
             onMouseLeave={handleSidebarMouseLeave}
         >
              {displayVendor && (
                  <>
                     <div className="flex justify-between items-start mb-4">
-                        <h2 className="text-xl font-bold text-gray-900">{displayVendor.name}</h2>
-                        <button onClick={closeSidebar} className="text-gray-400 hover:text-gray-600 focus:outline-none">&times;</button>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{displayVendor.name}</h2>
+                        <button onClick={closeSidebar} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">&times;</button>
                     </div>
                     
                     <div className="space-y-4">
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                            <span className="text-xs font-semibold text-slate-500 uppercase">Location</span>
-                            <p className="text-gray-800 font-medium">{displayVendor.location}</p>
+                        <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Location</span>
+                            <p className="text-gray-800 dark:text-white font-medium">{displayVendor.location}</p>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-slate-500 uppercase">Risk Level</span>
-                            <div className={`mt-1 inline-block px-3 py-1 rounded-full text-sm font-bold bg-${displayVendor.riskProfile.level === 'High' || displayVendor.riskProfile.level === 'Critical' ? 'red' : 'green'}-100`}>
+                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Risk Level</span>
+                            <div className={`mt-1 inline-block px-3 py-1 rounded-full text-sm font-bold bg-${displayVendor.riskProfile.level === 'High' || displayVendor.riskProfile.level === 'Critical' ? 'red' : 'green'}-100 dark:bg-${displayVendor.riskProfile.level === 'High' || displayVendor.riskProfile.level === 'Critical' ? 'red' : 'green'}-900/30 text-${displayVendor.riskProfile.level === 'High' || displayVendor.riskProfile.level === 'Critical' ? 'red' : 'green'}-800 dark:text-${displayVendor.riskProfile.level === 'High' || displayVendor.riskProfile.level === 'Critical' ? 'red' : 'green'}-300`}>
                                 {displayVendor.riskProfile.level}
                             </div>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-slate-500 uppercase">Key Factors</span>
+                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Key Factors</span>
                             <ul className="mt-2 space-y-1">
                                 {displayVendor.riskProfile.keyFactors.map((factor, idx) => (
-                                    <li key={idx} className="text-sm text-gray-600 flex items-start">
+                                    <li key={idx} className="text-sm text-gray-600 dark:text-slate-400 flex items-start">
                                         <span className="mr-2 text-indigo-500">•</span>
                                         <span className="flex-1">{factor.text}</span>
                                         {factor.sourceUrl && (
-                                            <a href={factor.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-1 text-indigo-400 hover:text-indigo-600" title={factor.sourceUrl}>
+                                            <a href={factor.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-1 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300" title={factor.sourceUrl}>
                                                 <LinkIcon className="w-3 h-3" />
                                             </a>
                                         )}
@@ -449,7 +448,7 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                                 ))}
                             </ul>
                         </div>
-                        <div className="pt-4 border-t">
+                        <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
                             <button onClick={() => setIsProfileOpen(true)} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm">
                                 View Full Profile
                             </button>
@@ -463,15 +462,15 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
        {/* Full Detail Modal */}
        {selectedVendor && isProfileOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
-                <div className="p-6 border-b border-gray-100 flex justify-between items-start">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] ring-1 ring-slate-900/5 dark:ring-white/10">
+                <div className="p-6 border-b border-gray-100 dark:border-slate-800 flex justify-between items-start">
                     <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-2xl">
+                        <div className="w-16 h-16 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-2xl">
                             {selectedVendor.name.substring(0,2).toUpperCase()}
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900">{selectedVendor.name}</h2>
-                            <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedVendor.name}</h2>
+                            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-slate-400">
                                  <span>{selectedVendor.industry}</span>
                                  <span>•</span>
                                  <Globe className="w-3 h-3" />
@@ -479,214 +478,56 @@ const SupplyChainMap: React.FC<SupplyChainMapProps> = ({ vendors }) => {
                             </div>
                         </div>
                     </div>
-                    <button onClick={closeSidebar} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <X className="w-6 h-6 text-gray-500" />
+                    <button onClick={closeSidebar} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                        <X className="w-6 h-6 text-gray-500 dark:text-slate-400" />
                     </button>
                 </div>
                 
                 <div className="p-6 overflow-y-auto">
-                    <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl mb-6">
+                    {/* Reusing the VendorList modal content essentially, but simplified for Map view */}
+                    <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-4 rounded-xl mb-6">
                         <div>
-                            <p className="text-sm font-medium text-gray-500 uppercase">Overall Risk Score</p>
+                            <p className="text-sm font-medium text-gray-500 dark:text-slate-400 uppercase">Overall Risk Score</p>
                             <div className="flex items-baseline space-x-2">
-                                <span className="text-4xl font-bold text-gray-900">{selectedVendor.riskProfile.overall}</span>
-                                <span className="text-sm text-gray-400">/100</span>
+                                <span className="text-4xl font-bold text-gray-900 dark:text-white">{selectedVendor.riskProfile.overall}</span>
+                                <span className="text-sm text-gray-400 dark:text-slate-500">/100</span>
                             </div>
                         </div>
                          <div className={`px-4 py-2 rounded-lg border ${
-                            selectedVendor.riskProfile.level === RiskLevel.LOW ? 'bg-green-100 text-green-800 border-green-200' :
-                            selectedVendor.riskProfile.level === RiskLevel.MEDIUM ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                            selectedVendor.riskProfile.level === RiskLevel.HIGH ? 'bg-orange-100 text-orange-800 border-orange-200' :
-                            'bg-red-100 text-red-800 border-red-200'
+                            selectedVendor.riskProfile.level === RiskLevel.LOW ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' :
+                            selectedVendor.riskProfile.level === RiskLevel.MEDIUM ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800' :
+                            selectedVendor.riskProfile.level === RiskLevel.HIGH ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800' :
+                            'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800'
                         }`}>
                             <span className="font-bold text-lg">{selectedVendor.riskProfile.level} Risk</span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                         {/* Cyber Security Box */}
-                         <div 
-                            onClick={() => toggleCategory('cyber')}
-                            className={`p-4 border rounded-xl text-center cursor-pointer transition-all duration-200 ${activeCategory === 'cyber' ? 'border-indigo-500 bg-indigo-50 shadow-inner' : 'border-gray-100 hover:border-indigo-200 hover:shadow-md'}`}
-                        >
-                            <Shield className={`w-6 h-6 mx-auto mb-2 ${activeCategory === 'cyber' ? 'text-indigo-600' : 'text-blue-500'}`} />
-                            <div className="text-2xl font-bold text-gray-900">{selectedVendor.riskProfile.cyberScore}</div>
-                            <div className={`text-xs ${activeCategory === 'cyber' ? 'text-indigo-700 font-semibold' : 'text-gray-500'}`}>Cyber Security</div>
+                    {/* Basic Grid */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                         <div className="p-4 border border-gray-100 dark:border-slate-800 rounded-xl text-center bg-gray-50/50 dark:bg-slate-800/50">
+                            <Shield className="w-6 h-6 mx-auto mb-2 text-blue-500 dark:text-blue-400" />
+                            <div className="text-2xl font-bold text-gray-900 dark:text-white">{selectedVendor.riskProfile.cyberScore}</div>
+                            <div className="text-xs text-gray-500 dark:text-slate-400">Cyber Security</div>
                          </div>
-                         {/* Financial Health Box */}
-                         <div 
-                            onClick={() => toggleCategory('financial')}
-                            className={`p-4 border rounded-xl text-center cursor-pointer transition-all duration-200 ${activeCategory === 'financial' ? 'border-indigo-500 bg-indigo-50 shadow-inner' : 'border-gray-100 hover:border-indigo-200 hover:shadow-md'}`}
-                        >
-                            <TrendingUp className={`w-6 h-6 mx-auto mb-2 ${activeCategory === 'financial' ? 'text-indigo-600' : 'text-green-500'}`} />
-                            <div className="text-2xl font-bold text-gray-900">{selectedVendor.riskProfile.financialScore}</div>
-                            <div className={`text-xs ${activeCategory === 'financial' ? 'text-indigo-700 font-semibold' : 'text-gray-500'}`}>Financial Health</div>
-                         </div>
-                         {/* Geopolitical Box */}
-                         <div 
-                            onClick={() => toggleCategory('geopolitical')}
-                            className={`p-4 border rounded-xl text-center cursor-pointer transition-all duration-200 ${activeCategory === 'geopolitical' ? 'border-indigo-500 bg-indigo-50 shadow-inner' : 'border-gray-100 hover:border-indigo-200 hover:shadow-md'}`}
-                        >
-                            <Globe className={`w-6 h-6 mx-auto mb-2 ${activeCategory === 'geopolitical' ? 'text-indigo-600' : 'text-orange-500'}`} />
-                            <div className="text-2xl font-bold text-gray-900">{selectedVendor.riskProfile.geopoliticalScore}</div>
-                            <div className={`text-xs ${activeCategory === 'geopolitical' ? 'text-indigo-700 font-semibold' : 'text-gray-500'}`}>Geopolitical</div>
-                         </div>
-                         <div className="p-4 border border-gray-100 rounded-xl text-center bg-gray-50/50">
-                            <Layers className="w-6 h-6 mx-auto mb-2 text-indigo-500" />
-                            <div className="text-2xl font-bold text-gray-900">Tier {selectedVendor.tier}</div>
-                            <div className="text-xs text-gray-500">Supply Chain</div>
+                         <div className="p-4 border border-gray-100 dark:border-slate-800 rounded-xl text-center bg-gray-50/50 dark:bg-slate-800/50">
+                            <TrendingUp className="w-6 h-6 mx-auto mb-2 text-green-500 dark:text-green-400" />
+                            <div className="text-2xl font-bold text-gray-900 dark:text-white">{selectedVendor.riskProfile.financialScore}</div>
+                            <div className="text-xs text-gray-500 dark:text-slate-400">Financial Health</div>
                          </div>
                     </div>
 
-                    <div className="space-y-6 flex flex-col h-full">
-                        {!activeCategory ? (
-                             // Default View
-                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <div>
-                                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                                        <FileText className="w-4 h-4 mr-2 text-indigo-500" />
-                                        AI Risk Analysis
-                                    </h3>
-                                    <p className="text-gray-600 leading-relaxed bg-indigo-50/50 p-4 rounded-lg border border-indigo-100 text-sm">
-                                        {selectedVendor.riskProfile.summary}
-                                    </p>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wider text-gray-500">Key Risk Factors</h3>
-                                    <div className="space-y-2">
-                                        {selectedVendor.riskProfile.keyFactors.map((factor, idx) => (
-                                            <div key={idx} className="flex items-start text-sm text-gray-700">
-                                                <AlertTriangle className="w-4 h-4 text-orange-500 mr-3 mt-0.5 flex-shrink-0" />
-                                                <div className="flex-1">
-                                                    <span>{factor.text}</span>
-                                                    {factor.sourceUrl && (
-                                                        <a href={factor.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-1 inline-flex items-center text-indigo-400 hover:text-indigo-600" title={factor.sourceUrl}>
-                                                            <LinkIcon className="w-3 h-3" />
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                     <h3 className="font-semibold text-gray-900 mb-2">Company Description</h3>
-                                     <p className="text-sm text-gray-500 leading-relaxed">{selectedVendor.description}</p>
-                                </div>
-                            </div>
-                        ) : (
-                            // Drill Down Views
-                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <div className="flex items-center space-x-2 mb-2">
-                                    <button onClick={() => setActiveCategory(null)} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                                        <ChevronLeft className="w-5 h-5 text-gray-500" />
-                                    </button>
-                                    <h3 className="text-lg font-bold text-gray-900">
-                                        {activeCategory === 'cyber' && 'Cyber Security Detail'}
-                                        {activeCategory === 'financial' && 'Financial Health Detail'}
-                                        {activeCategory === 'geopolitical' && 'Geopolitical Analysis'}
-                                    </h3>
-                                </div>
-
-                                <div className="flex-1 bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                    {activeCategory === 'cyber' && (
-                                        <div className="space-y-6">
-                                            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600">CVE Vulnerabilities</span>
-                                                <span className="text-2xl font-bold text-gray-900">{selectedVendor.riskProfile.cyberDetails?.cveCount ?? 'N/A'}</span>
-                                            </div>
-                                            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600">SSL Grade</span>
-                                                <span className={`text-xl font-bold px-3 py-1 rounded ${
-                                                    selectedVendor.riskProfile.cyberDetails?.sslGrade?.startsWith('A') ? 'bg-green-100 text-green-700' :
-                                                    selectedVendor.riskProfile.cyberDetails?.sslGrade === 'B' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-red-100 text-red-700'
-                                                }`}>
-                                                    {selectedVendor.riskProfile.cyberDetails?.sslGrade ?? 'Unknown'}
-                                                </span>
-                                            </div>
-                                            <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600 block mb-2">Breach History (Last 12mo)</span>
-                                                {selectedVendor.riskProfile.cyberDetails?.recentBreach ? (
-                                                    <div className="flex items-center text-red-600 bg-red-50 p-2 rounded">
-                                                        <AlertTriangle className="w-4 h-4 mr-2" />
-                                                        <span className="text-sm font-medium">Major incident detected</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center text-green-600 bg-green-50 p-2 rounded">
-                                                        <Check className="w-4 h-4 mr-2" />
-                                                        <span className="text-sm font-medium">No major breaches reported</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {activeCategory === 'financial' && (
-                                        <div className="space-y-6">
-                                            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600">Credit Rating</span>
-                                                <span className="text-2xl font-bold text-indigo-600">{selectedVendor.riskProfile.financialDetails?.creditRating ?? 'N/A'}</span>
-                                            </div>
-                                            <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600 block mb-2">Stock / Market Trend</span>
-                                                <div className="flex items-center space-x-2">
-                                                    <Activity className="w-5 h-5 text-gray-400" />
-                                                    <span className="text-lg font-medium text-gray-900">{selectedVendor.riskProfile.financialDetails?.stockTrend ?? 'Private / N/A'}</span>
-                                                </div>
-                                            </div>
-                                            <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600 block mb-2">Bankruptcy Risk</span>
-                                                <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
-                                                    selectedVendor.riskProfile.financialDetails?.bankruptcyRisk === 'Low' ? 'bg-green-100 text-green-800' :
-                                                    selectedVendor.riskProfile.financialDetails?.bankruptcyRisk === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {selectedVendor.riskProfile.financialDetails?.bankruptcyRisk ?? 'Unknown'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {activeCategory === 'geopolitical' && (
-                                        <div className="space-y-6">
-                                            <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600 block mb-2">Regional Stability</span>
-                                                <div className={`flex items-center space-x-2 font-bold text-lg ${
-                                                    selectedVendor.riskProfile.geopoliticalDetails?.politicalStability === 'Stable' ? 'text-green-600' :
-                                                    selectedVendor.riskProfile.geopoliticalDetails?.politicalStability === 'Unstable' ? 'text-orange-600' :
-                                                    'text-red-600'
-                                                }`}>
-                                                    <span>{selectedVendor.riskProfile.geopoliticalDetails?.politicalStability ?? 'Unknown'}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600">Active Conflict Zone</span>
-                                                {selectedVendor.riskProfile.geopoliticalDetails?.conflictZone ? (
-                                                    <span className="text-red-600 font-bold bg-red-50 px-3 py-1 rounded">YES</span>
-                                                ) : (
-                                                    <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded">NO</span>
-                                                )}
-                                            </div>
-                                            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                <span className="text-sm font-medium text-gray-600">Trade Sanctions</span>
-                                                {selectedVendor.riskProfile.geopoliticalDetails?.tradeSanctions ? (
-                                                    <span className="text-red-600 font-bold bg-red-50 px-3 py-1 rounded">DETECTED</span>
-                                                ) : (
-                                                    <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded">NONE</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                    <div className="space-y-6">
+                        <div>
+                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Company Description</h3>
+                             <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">{selectedVendor.description}</p>
+                        </div>
                     </div>
                 </div>
                 
-                <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-between items-center">
-                    <span className="text-xs text-gray-400">Last updated: {new Date(selectedVendor.riskProfile.lastUpdated).toLocaleDateString()}</span>
-                    <button onClick={closeSidebar} className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+                <div className="p-6 border-t border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 rounded-b-2xl flex justify-between items-center">
+                    <span className="text-xs text-gray-400 dark:text-slate-500">Last updated: {new Date(selectedVendor.riskProfile.lastUpdated).toLocaleDateString()}</span>
+                    <button onClick={closeSidebar} className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
                         Close
                     </button>
                 </div>

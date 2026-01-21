@@ -1,14 +1,17 @@
+
 import React, { useState } from 'react';
-import { LayoutDashboard, Users, Map, Bell, Settings, ShieldCheck, Menu, HelpCircle, X, Zap, Lock, Globe, Activity, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Users, Map, Bell, Settings, ShieldCheck, Menu, HelpCircle, X, Zap, Lock, Globe, Activity, ArrowRight, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
   alertCount: number;
   vendorCount: number;
+  darkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) => {
+const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, darkMode, toggleDarkMode }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
@@ -32,10 +35,10 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
   });
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex md:flex-col w-64 bg-slate-900 text-white shadow-xl transition-all duration-300">
-        <div className="p-6 flex items-center space-x-3 border-b border-slate-700">
+      <aside className="hidden md:flex md:flex-col w-64 bg-slate-900 border-r border-slate-800 text-white shadow-xl transition-all duration-300">
+        <div className="p-6 flex items-center space-x-3 border-b border-slate-800">
           <div className="p-2 bg-indigo-500 rounded-lg">
             <ShieldCheck className="w-6 h-6 text-white" />
           </div>
@@ -47,10 +50,10 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
             <Link
               key={item.name}
               to={item.path}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors group ${
+              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group ${
                 isActive(item.path) 
-                  ? 'bg-indigo-600 text-white shadow-md' 
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-white/10 text-white shadow-none ring-1 ring-white/20' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
               <item.icon className={`w-5 h-5 ${isActive(item.path) ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
@@ -66,18 +69,31 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
           {/* About Button in Navigation */}
            <button
               onClick={() => setIsAboutModalOpen(true)}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors group text-slate-300 hover:bg-slate-800 hover:text-white text-left"
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group text-slate-400 hover:text-white hover:bg-white/5 text-left"
             >
               <HelpCircle className="w-5 h-5 text-slate-400 group-hover:text-white" />
               <span className="font-medium">About Platform</span>
             </button>
         </nav>
 
-        <div className="p-4 border-t border-slate-700">
-          <div className="bg-slate-800 rounded-lg p-3">
+        <div className="p-4 border-t border-slate-800 space-y-3">
+          <button 
+            onClick={toggleDarkMode}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <span className="text-sm font-medium flex items-center">
+              {darkMode ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+              {darkMode ? 'Dark Mode' : 'Light Mode'}
+            </span>
+            <div className={`w-8 h-4 bg-slate-700 rounded-full relative transition-colors ${darkMode ? 'bg-indigo-500' : ''}`}>
+               <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${darkMode ? 'left-4.5' : 'left-0.5'}`} style={{left: darkMode ? '18px' : '2px'}}></div>
+            </div>
+          </button>
+
+          <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
             <p className="text-xs text-slate-400 uppercase font-semibold mb-1">Plan</p>
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-white">SME Standard</span>
+              <span className="text-sm font-medium text-white font-mono text-[10px] opacity-50">SME Standard</span>
               <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Active</span>
             </div>
           </div>
@@ -85,7 +101,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 w-full bg-slate-900 text-white z-50 flex items-center justify-between p-4 shadow-md">
+      <div className="md:hidden fixed top-0 w-full bg-slate-900 text-white z-50 flex items-center justify-between p-4 shadow-md border-b border-slate-800">
         <div className="flex items-center space-x-2">
           <ShieldCheck className="w-6 h-6 text-indigo-400" />
           <span className="font-bold text-lg">RiskGuard AI</span>
@@ -115,6 +131,13 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
               </Link>
             ))}
              <button
+                onClick={() => { toggleDarkMode(); }}
+                className="w-full flex items-center space-x-3 px-4 py-4 rounded-lg text-lg text-slate-300"
+              >
+                {darkMode ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+                <span>{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
+              </button>
+             <button
                 onClick={() => { setIsAboutModalOpen(true); setIsMobileMenuOpen(false); }}
                 className="w-full flex items-center space-x-3 px-4 py-4 rounded-lg text-lg text-slate-300"
               >
@@ -132,14 +155,14 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
         </div>
         
         {/* Footer with Generation Date */}
-        <footer className="w-full max-w-7xl mx-auto px-4 md:px-8 py-6 mt-auto border-t border-gray-200">
+        <footer className="w-full max-w-7xl mx-auto px-4 md:px-8 py-6 mt-auto border-t border-gray-200 dark:border-slate-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center space-x-2 text-slate-400 text-sm">
+            <div className="flex items-center space-x-2 text-slate-400 dark:text-slate-500 text-sm">
               <ShieldCheck className="w-4 h-4" />
               <span>&copy; {new Date().getFullYear()} RiskGuard AI. All rights reserved.</span>
             </div>
-            <div className="text-sm text-slate-500">
-              Platform active: <span className="font-semibold text-slate-700">{currentDate}</span>
+            <div className="text-sm text-slate-500 dark:text-slate-600">
+              Platform active: <span className="font-semibold text-slate-700 dark:text-slate-400">{currentDate}</span>
             </div>
           </div>
         </footer>
@@ -148,7 +171,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount }) =>
       {/* About Modal */}
       {isAboutModalOpen && (
         <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white shadow-2xl max-w-5xl w-full relative overflow-y-auto max-h-[90vh]">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white shadow-2xl max-w-5xl w-full relative overflow-y-auto max-h-[90vh] ring-1 ring-white/10">
             <button 
               onClick={() => setIsAboutModalOpen(false)} 
               className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
