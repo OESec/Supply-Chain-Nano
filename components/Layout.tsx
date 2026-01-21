@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { LayoutDashboard, Users, Map, Bell, Settings, ShieldCheck, Menu, HelpCircle, X, Zap, Lock, Globe, Activity, ArrowRight, Moon, Sun, CreditCard, Check, Info, Mail, MessageSquare, Building, User, Send, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
@@ -21,6 +21,9 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sentSuccess, setSentSuccess] = useState(false);
+  
+  // Ref to manage auto-close timeout
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -39,6 +42,23 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
     month: 'long',
     day: 'numeric'
   });
+
+  const handleCloseModal = () => {
+    if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+    }
+    
+    // If sent success is true, user is done, just close.
+    if (sentSuccess) {
+        setSentSuccess(false);
+        setIsContactModalOpen(false);
+    } else {
+        // If user hasn't sent yet and clicks close, go back to pricing modal
+        setIsContactModalOpen(false);
+        setIsPricingModalOpen(true);
+    }
+  };
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,10 +106,14 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
         setIsSending(false);
         setSentSuccess(true);
         
+        // Clear any existing timeout
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
         // Close modal after showing success message
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
             setSentSuccess(false);
             setIsContactModalOpen(false);
+            timeoutRef.current = null;
         }, 5000);
 
     } catch (error) {
@@ -391,7 +415,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                         <div className="flex items-start">
                             <Info className="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" />
                             <p className="text-xs font-medium text-indigo-800 dark:text-indigo-300 leading-snug">
-                                This plan is free to use but requires a "Bring Your Own Key" (BYOK) setup for the Google Gemini API.
+                                This plan is free to use but requires a "Bring Your Own Key" (BYOK) setup. Please go to the <Link to="/settings" onClick={() => setIsPricingModalOpen(false)} className="underline font-bold hover:text-indigo-900 dark:hover:text-indigo-100">Settings</Link> page, enter your key in the "Google Gemini API Key" box and click "Update".
                             </p>
                         </div>
                     </div>
@@ -445,13 +469,6 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
       {isContactModalOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 backdrop-blur-sm bg-black/60">
            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full relative ring-1 ring-slate-900/5 dark:ring-white/10 overflow-hidden">
-                <button 
-                    onClick={() => setIsContactModalOpen(false)} 
-                    className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full transition-colors z-10"
-                >
-                    <X className="w-5 h-5 text-gray-500 dark:text-slate-400" />
-                </button>
-
                 {sentSuccess ? (
                     <div className="p-12 text-center animate-in zoom-in duration-300">
                         <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -478,20 +495,26 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                         <form onSubmit={handleContactSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">First Name</label>
+                                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">
+                                        First Name <span className="text-red-500">*</span>
+                                    </label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                                         <input required name="first_name" type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jane" />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Last Name</label>
+                                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">
+                                        Last Name <span className="text-red-500">*</span>
+                                    </label>
                                     <input required name="last_name" type="text" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Doe" />
                                 </div>
                             </div>
                             
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Work Email</label>
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">
+                                    Work Email <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                                     <input required name="email" type="email" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="jane@company.com" />
@@ -499,7 +522,9 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                             </div>
 
                              <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Company Name</label>
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">
+                                    Company Name <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <Building className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                                     <input required name="company" type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Acme Corp" />
@@ -507,7 +532,9 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Message / Requirements</label>
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">
+                                    Message / Requirements <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <MessageSquare className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                                     <textarea required name="message" rows={4} className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="I am interested in the ERP integration features..." />
@@ -534,6 +561,15 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                         </form>
                     </div>
                 )}
+                
+                {/* Close Button - Placed at end of container for proper stacking/z-index */}
+                <button 
+                    onClick={handleCloseModal} 
+                    className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20"
+                    title="Close"
+                >
+                    <X className="w-5 h-5 text-gray-500 dark:text-slate-400" />
+                </button>
            </div>
         </div>
       )}
