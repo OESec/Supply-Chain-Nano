@@ -143,9 +143,9 @@ const Dashboard: React.FC<DashboardProps> = ({ vendors, alerts }) => {
                 <Pie
                   data={riskDistribution}
                   cx="50%"
-                  cy="40%"
-                  innerRadius={40}
-                  outerRadius={60}
+                  cy="50%"
+                  innerRadius={35}
+                  outerRadius={55}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
@@ -182,9 +182,9 @@ const Dashboard: React.FC<DashboardProps> = ({ vendors, alerts }) => {
                 <Pie
                   data={tierDistribution}
                   cx="50%"
-                  cy="40%"
-                  innerRadius={40}
-                  outerRadius={60}
+                  cy="50%"
+                  innerRadius={35}
+                  outerRadius={55}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"

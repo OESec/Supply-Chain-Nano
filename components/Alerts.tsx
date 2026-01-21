@@ -69,6 +69,10 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Alert Centre</h1>
           <p className="text-gray-500 dark:text-slate-400">AI-predicted disruptions and monitoring notifications.</p>
+          <div className="flex items-center mt-1 text-xs text-gray-400 dark:text-slate-500">
+            <Info className="w-3 h-3 mr-1.5" />
+            <span>Reports on real-world news stories from the last 7 days that impact these specific locations.</span>
+          </div>
         </div>
         <button 
           onClick={handleScanForDisruptions}

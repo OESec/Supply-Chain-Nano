@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Vendor, RiskLevel, Note } from '../types';
-import { Search, Plus, Loader2, Globe, Shield, FileText, X, AlertTriangle, TrendingUp, Layers, Trash2, Edit2, Save, StickyNote, ExternalLink, ArrowLeft, Check, LayoutGrid, List, Upload, Lock, Activity, ChevronLeft, Link as LinkIcon, History, Calendar } from 'lucide-react';
-import { analyzeVendorRisk } from '../services/geminiService';
+import { Search, Plus, Loader2, Globe, Shield, FileText, X, AlertTriangle, TrendingUp, Layers, Trash2, Edit2, Save, StickyNote, ExternalLink, ArrowLeft, Check, LayoutGrid, List, Upload, Lock, Activity, ChevronLeft, Link as LinkIcon, History, Calendar, Sparkles } from 'lucide-react';
+import { analyzeVendorRisk, lookupVendorDetails } from '../services/geminiService';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router-dom';
 import InfoTooltip from './InfoTooltip';
@@ -22,6 +22,7 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isConfirmingAdd, setIsConfirmingAdd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isAutofilling, setIsAutofilling] = useState(false);
   
   // Selected Vendor State
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
@@ -56,6 +57,29 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
     setActiveCategory(null);
     setShowHistoryModal(false);
     setEditFormData({});
+  };
+
+  const handleAutofill = async () => {
+    if (!newVendor.name.trim()) return;
+    setIsAutofilling(true);
+    try {
+      const details = await lookupVendorDetails(newVendor.name);
+      if (details) {
+        setNewVendor(prev => ({
+          ...prev,
+          industry: details.industry || prev.industry,
+          location: details.location || prev.location,
+          website: details.website || prev.website,
+          description: details.description || prev.description
+        }));
+        // Clear errors if any
+        setFormErrors({});
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsAutofilling(false);
+    }
   };
 
   // --- Security: Validation Logic ---
@@ -293,28 +317,22 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
     }
   };
 
-  // Mock Quarterly Data Generator
+  // STRICT DATA: Only show real recorded history, no fabrication.
   const getQuarterlyData = (vendor: Vendor) => {
-      const quarters = ["Q1 2025", "Q4 2024", "Q3 2024", "Q2 2024", "Q1 2024", "Q4 2023", "Q3 2023", "Q2 2023"];
-      return quarters.map(q => {
-          // Semi-randomly generate a 'status' to make it look realistic based on overall score
+      // Sort history to show newest first
+      const history = [...vendor.riskHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      return history.map((point, index) => {
           let riskType = "Stable";
-          let details = "Operations maintained normal cadence.";
-          
-          if (vendor.riskProfile.overall > 70 && (q.includes("2024") || q.includes("2025"))) {
-               riskType = "Elevated";
-               details = "Supply chain constraints noted in region. Increased lead times.";
-          }
-          if (vendor.riskProfile.overall > 85 && q === "Q4 2024") {
-               riskType = "Critical";
-               details = "Major geopolitical event impacted production capacity.";
-          }
-          if (vendor.riskProfile.overall < 30) {
-               riskType = "Low";
-               details = "Audit passed with distinction. No major incidents.";
-          }
+          if (point.score >= 80) riskType = "Critical";
+          else if (point.score >= 60) riskType = "Elevated";
+          else if (point.score <= 30) riskType = "Low";
 
-          return { period: q, riskType, details };
+          // Use current summary for latest entry (index 0), generic text for older entries
+          const details = index === 0 ? vendor.riskProfile.summary : `Historical risk score: ${point.score}`;
+          const period = new Date(point.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+          return { period, riskType, details };
       });
   };
 
@@ -531,18 +549,30 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
                   <form onSubmit={handleAddFormSubmit} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Company Name</label>
-                      <input 
-                        required 
-                        type="text" 
-                        maxLength={100}
-                        className={`w-full border rounded-lg p-2.5 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none ${formErrors.name ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-slate-600'}`} 
-                        value={newVendor.name} 
-                        onChange={e => {
-                            setNewVendor({...newVendor, name: e.target.value});
-                            if(formErrors.name) setFormErrors({...formErrors, name: ''});
-                        }} 
-                        placeholder="e.g. Foxconn" 
-                      />
+                      <div className="flex gap-2">
+                          <input 
+                            required 
+                            type="text" 
+                            maxLength={100}
+                            className={`flex-1 border rounded-lg p-2.5 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none ${formErrors.name ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-slate-600'}`} 
+                            value={newVendor.name} 
+                            onChange={e => {
+                                setNewVendor({...newVendor, name: e.target.value});
+                                if(formErrors.name) setFormErrors({...formErrors, name: ''});
+                            }} 
+                            placeholder="e.g. Foxconn" 
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAutofill}
+                            disabled={!newVendor.name.trim() || isAutofilling}
+                            className="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors flex items-center"
+                            title="Autofill details using AI"
+                          >
+                            {isAutofilling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                            <span className="ml-2 text-sm font-medium hidden sm:inline">Autofill</span>
+                          </button>
+                      </div>
                       {formErrors.name && <p className="text-xs text-red-600 mt-1">{formErrors.name}</p>}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -984,11 +1014,17 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
                                             {activeCategory === 'cyber' && (
                                                 <div className="space-y-6">
                                                     <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                        <span className="text-sm font-medium text-gray-600 dark:text-slate-400">CVE Vulnerabilities</span>
+                                                        <div className="flex items-center">
+                                                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400">CVE Vulnerabilities</span>
+                                                            <InfoTooltip text="Source: National Vulnerability Database (NVD) & CVE Details" />
+                                                        </div>
                                                         <span className="text-2xl font-bold text-gray-900 dark:text-white">{selectedVendor.riskProfile.cyberDetails?.cveCount ?? 'N/A'}</span>
                                                     </div>
                                                     <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                        <span className="text-sm font-medium text-gray-600 dark:text-slate-400">SSL Grade</span>
+                                                        <div className="flex items-center">
+                                                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400">SSL Grade</span>
+                                                            <InfoTooltip text="Source: Public SSL/TLS Certificate Analysis" />
+                                                        </div>
                                                         <span className={`text-xl font-bold px-3 py-1 rounded ${
                                                             selectedVendor.riskProfile.cyberDetails?.sslGrade?.startsWith('A') ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
                                                             selectedVendor.riskProfile.cyberDetails?.sslGrade === 'B' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
@@ -998,7 +1034,10 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
                                                         </span>
                                                     </div>
                                                     <div className="p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                        <span className="text-sm font-medium text-gray-600 dark:text-slate-400 block mb-2">Breach History (Last 12mo)</span>
+                                                        <div className="flex items-center mb-2">
+                                                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Breach History (Last 12mo)</span>
+                                                            <InfoTooltip text="Source: Dark Web Monitoring & Breach Reports" />
+                                                        </div>
                                                         {selectedVendor.riskProfile.cyberDetails?.recentBreach ? (
                                                             <div className="flex items-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
                                                                 <AlertTriangle className="w-4 h-4 mr-2" />
@@ -1026,18 +1065,27 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
                                                       </div>
                                                     )}
                                                     <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                        <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Credit Rating</span>
+                                                        <div className="flex items-center">
+                                                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Credit Rating</span>
+                                                            <InfoTooltip text="Source: Public Financial Data & Market News" />
+                                                        </div>
                                                         <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{selectedVendor.riskProfile.financialDetails?.creditRating ?? 'N/A'}</span>
                                                     </div>
                                                     <div className="p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                        <span className="text-sm font-medium text-gray-600 dark:text-slate-400 block mb-2">Stock / Market Trend</span>
+                                                        <div className="flex items-center mb-2">
+                                                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Stock / Market Trend</span>
+                                                            <InfoTooltip text="Source: Live Market Data & Financial News" />
+                                                        </div>
                                                         <div className="flex items-center space-x-2">
                                                             <Activity className="w-5 h-5 text-gray-400 dark:text-slate-500" />
                                                             <span className="text-lg font-medium text-gray-900 dark:text-white">{selectedVendor.riskProfile.financialDetails?.stockTrend ?? 'Private / N/A'}</span>
                                                         </div>
                                                     </div>
                                                     <div className="p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                        <span className="text-sm font-medium text-gray-600 dark:text-slate-400 block mb-2">Bankruptcy Risk</span>
+                                                        <div className="flex items-center mb-2">
+                                                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Bankruptcy Risk</span>
+                                                            <InfoTooltip text="Source: Analysis of Recent Financial Filings" />
+                                                        </div>
                                                         <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
                                                             selectedVendor.riskProfile.financialDetails?.bankruptcyRisk === 'Low' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
                                                             selectedVendor.riskProfile.financialDetails?.bankruptcyRisk === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :

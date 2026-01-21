@@ -27,6 +27,34 @@ const fetchAlphaVantageData = async (symbol: string) => {
   }
 };
 
+export const lookupVendorDetails = async (companyName: string) => {
+  try {
+    const prompt = `
+      Search for the company "${sanitize(companyName)}".
+      Return their official website URL, headquarter city & country, primary industry, and a 1-sentence description.
+      
+      Output strictly as a JSON object with keys: "website", "industry", "location", "description".
+    `;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        tools: [{ googleSearch: {} }],
+        temperature: 0.1,
+      }
+    });
+
+    let text = response.text || "";
+    // Sanitize markdown code blocks if present
+    text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Autofill failed:", error);
+    return null;
+  }
+};
+
 export const analyzeVendorRisk = async (
   name: string,
   industry: string,
