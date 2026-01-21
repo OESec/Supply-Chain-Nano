@@ -49,14 +49,29 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
     const TEMPLATE_ID = 'template_ropue3u';
     const PUBLIC_KEY = 'WVCfZDTYkymY5JHbL';
 
-    // Extract form data
+    // Extract and cast form data to strings to ensure type safety
     const formData = new FormData(e.currentTarget);
+    const firstName = formData.get('first_name') as string;
+    const lastName = formData.get('last_name') as string;
+    const email = formData.get('email') as string;
+    const company = formData.get('company') as string;
+    const message = formData.get('message') as string;
+
+    // We send multiple variations of the email field (reply_to, email, from_email)
+    // to match whatever variable names might be used in the default EmailJS template.
     const templateParams = {
-        from_name: `${formData.get('first_name')} ${formData.get('last_name')}`,
-        from_email: formData.get('email'),
-        company: formData.get('company'),
-        message: formData.get('message'),
-        to_name: 'Sales Team'
+        to_name: 'Sales Team',
+        from_name: `${firstName} ${lastName}`,
+        message: message,
+        company: company,
+        
+        // Standard variable for the "Reply To" field in EmailJS
+        reply_to: email,
+        
+        // Common variable names for the sender's email
+        from_email: email,
+        email: email,
+        sender_email: email
     };
 
     try {
@@ -80,7 +95,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
     } catch (error) {
         console.error("EmailJS Error:", error);
         setIsSending(false);
-        alert("Failed to send message. Please check your internet connection or try again later.");
+        alert("Failed to send message. Please check the 'To Email' field in your EmailJS template settings.");
     }
   };
 
