@@ -16,7 +16,7 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
   const handleScanForDisruptions = async () => {
     if (vendors.length === 0) return;
     setAnalyzing(true);
-    const vendorList = vendors.map(v => ({ name: v.name, location: v.location }));
+    const vendorList = vendors.map(v => ({ id: v.id, name: v.name, location: v.location }));
     
     // Safety timeout to prevent infinite UI hang
     const scanTimeout = new Promise((resolve) => {
@@ -37,7 +37,7 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
                 title: result.title,
                 severity: result.severity as any,
                 date: new Date().toISOString(),
-                relatedVendorIds: [],
+                relatedVendorIds: result.relatedVendorIds || [],
                 description: result.description,
                 isRead: false,
                 sources: result.sources
@@ -139,9 +139,13 @@ const Alerts: React.FC<AlertsProps> = ({ alerts, vendors, setAlerts }) => {
                     )}
 
                     {alert.relatedVendorIds.length > 0 && (
-                        <div className="mt-3 flex items-center space-x-2">
+                        <div className="mt-3 flex items-center space-x-2 flex-wrap gap-2">
                             <span className="text-xs font-semibold text-gray-400 uppercase">Impacted:</span>
-                            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">Acme Chipworks</span>
+                            {alert.relatedVendorIds.map(id => (
+                              <span key={id} className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
+                                {vendors.find(v => v.id === id)?.name || 'Unknown Vendor'}
+                              </span>
+                            ))}
                         </div>
                     )}
                 </div>

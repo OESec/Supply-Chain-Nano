@@ -17,6 +17,8 @@ export interface FinancialDetails {
   stockTrend: string; // e.g., "Down 15% YoY" or "Private"
   creditRating: string; // e.g., "AAA"
   bankruptcyRisk: string; // "Low" | "Medium" | "High"
+  currentPrice?: string;
+  tickerSymbol?: string;
 }
 
 export interface GeopoliticalDetails {

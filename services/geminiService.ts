@@ -12,6 +12,21 @@ const sanitize = (str: string): string => {
   return str.replace(/[`<>{}]/g, '').trim();
 };
 
+const fetchAlphaVantageData = async (symbol: string) => {
+  try {
+    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.API_KEY}`);
+    const data = await response.json();
+    const quote = data['Global Quote'];
+    if (quote && quote['05. price']) {
+      return quote['05. price'];
+    }
+    return null;
+  } catch (e) {
+    console.error("Alpha Vantage fetch failed", e);
+    return null;
+  }
+};
+
 export const analyzeVendorRisk = async (
   name: string,
   industry: string,
@@ -33,6 +48,7 @@ export const analyzeVendorRisk = async (
 
       SYSTEM INSTRUCTIONS:
       You MUST use Google Search to find real-time/current information for the following specific details about the vendor listed in <vendor_data>.
+      Identify and return the stock ticker symbol if public.
       
       1. **Cyber Security**: Search for "CVE vulnerabilities ${sanitize(name)}", "data breaches ${sanitize(name)} last 12 months", and "${sanitize(name)} ransomware news". Estimate the CVE count based on search results.
       2. **Financial Health**: Search for "${sanitize(name)} stock price trend", "${sanitize(name)} credit rating", or "${sanitize(name)} financial earnings report ${new Date().getFullYear()}". Use real recent news to determine stock trend and bankruptcy risk.
@@ -61,7 +77,8 @@ export const analyzeVendorRisk = async (
         "financialDetails": { 
             "stockTrend": string (e.g. "Up 5% YoY", "Stable", "Private", "Declining"), 
             "creditRating": string (e.g. "AAA", "BBB", "N/A"), 
-            "bankruptcyRisk": "Low"|"Medium"|"High" 
+            "bankruptcyRisk": "Low"|"Medium"|"High",
+            "tickerSymbol": "STRING or null"
         },
         "geopoliticalDetails": { 
             "conflictZone": boolean, 
@@ -85,6 +102,13 @@ export const analyzeVendorRisk = async (
 
     text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
     const data = JSON.parse(text);
+
+    if (data.financialDetails?.tickerSymbol) {
+      const livePrice = await fetchAlphaVantageData(data.financialDetails.tickerSymbol);
+      if (livePrice) {
+        data.financialDetails.currentPrice = livePrice;
+      }
+    }
 
     return {
       ...data,
@@ -113,7 +137,7 @@ export const analyzeVendorRisk = async (
   }
 };
 
-export const predictDisruptions = async (vendors: {name: string, location: string}[]) => {
+export const predictDisruptions = async (vendors: {id: string, name: string, location: string}[]) => {
     try {
         const vendorContext = vendors.map(v => `${sanitize(v.name)} (${sanitize(v.location)})`).join(', ');
         const prompt = `
@@ -121,12 +145,14 @@ export const predictDisruptions = async (vendors: {name: string, location: strin
             Given these vendors: ${vendorContext}.
             Identify ONE RECENT, REAL-WORLD supply chain disruption, news story, environmental event, or geopolitical risk from the last 7 days that specifically impacts these locations or industries.
             
-            IMPORTANT: Search efficiently. If a specific exact news story is not found within 15 seconds of searching, provide a realistic risk scenario based on known high-probability regional threats or current weather patterns for these areas instead of continuing to search.
+            IMPORTANT: Identify which of the provided vendors are impacted. Return their exact names in a comma-separated list after a label 'IMPACTED_VENDORS:'.
+            Search efficiently. If a specific exact news story is not found within 15 seconds of searching, provide a realistic risk scenario based on known high-probability regional threats or current weather patterns for these areas instead of continuing to search.
             
             Provide your response in this EXACT format (do not include any other text):
             TITLE: [A concise headline for the event]
             SEVERITY: [info, warning, or critical]
             DESCRIPTION: [A summary of the event and its impact on these vendors]
+            IMPACTED_VENDORS: [Comma-separated list of exact vendor names from the provided list]
         `;
 
         const response = await ai.models.generateContent({
@@ -141,7 +167,8 @@ export const predictDisruptions = async (vendors: {name: string, location: strin
         const text = response.text || "";
         const titleMatch = text.match(/TITLE:\s*(.*)/i);
         const severityMatch = text.match(/SEVERITY:\s*(info|warning|critical)/i);
-        const descriptionMatch = text.match(/DESCRIPTION:\s*(.*)/is);
+        const descriptionMatch = text.match(/DESCRIPTION:\s*(.*?)IMPACTED_VENDORS:/is) || text.match(/DESCRIPTION:\s*(.*)/is);
+        const impactedMatch = text.match(/IMPACTED_VENDORS:\s*(.*)/i);
 
         const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
         const sources = chunks
@@ -149,10 +176,16 @@ export const predictDisruptions = async (vendors: {name: string, location: strin
             .map(c => ({ title: c.web.title, url: c.web.uri }))
             .slice(0, 5);
 
+        const impactedVendorNames = impactedMatch ? impactedMatch[1].split(',').map(s => s.trim().toLowerCase()) : [];
+        const relatedVendorIds = vendors
+            .filter(v => impactedVendorNames.includes(v.name.toLowerCase()))
+            .map(v => v.id);
+
         return {
             title: titleMatch ? titleMatch[1].trim() : "Recent Market Intelligence",
             severity: severityMatch ? severityMatch[1].trim().toLowerCase() : "info",
             description: descriptionMatch ? descriptionMatch[1].trim() : text,
+            relatedVendorIds: relatedVendorIds,
             sources: sources
         };
     } catch (e) {

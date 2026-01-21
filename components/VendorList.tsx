@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Vendor, RiskLevel, Note } from '../types';
 import { Search, Plus, Loader2, Globe, Shield, FileText, X, AlertTriangle, TrendingUp, Layers, Trash2, Edit2, Save, StickyNote, ExternalLink, ArrowLeft, Check, LayoutGrid, List, Upload, Lock, Activity, ChevronLeft, Link as LinkIcon, History, Calendar } from 'lucide-react';
@@ -979,6 +980,15 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
 
                                             {activeCategory === 'financial' && (
                                                 <div className="space-y-6">
+                                                    {selectedVendor.riskProfile.financialDetails?.currentPrice && (
+                                                      <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-lg shadow-sm">
+                                                        <span className="text-sm font-bold text-indigo-700 uppercase tracking-wider">Live Stock Price</span>
+                                                        <div className="text-right">
+                                                          <span className="text-2xl font-bold text-gray-900">${selectedVendor.riskProfile.financialDetails.currentPrice}</span>
+                                                          <p className="text-[10px] text-indigo-500 font-mono font-bold uppercase">{selectedVendor.riskProfile.financialDetails.tickerSymbol}</p>
+                                                        </div>
+                                                      </div>
+                                                    )}
                                                     <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
                                                         <span className="text-sm font-medium text-gray-600">Credit Rating</span>
                                                         <span className="text-2xl font-bold text-indigo-600">{selectedVendor.riskProfile.financialDetails?.creditRating ?? 'N/A'}</span>
