@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { LayoutDashboard, Users, Map, Bell, Settings, ShieldCheck, Menu, HelpCircle, X, Zap, Lock, Globe, Activity, ArrowRight, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Users, Map, Bell, Settings, ShieldCheck, Menu, HelpCircle, X, Zap, Lock, Globe, Activity, ArrowRight, Moon, Sun, CreditCard, Check, Info, Mail, MessageSquare, Building, User, Send, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -15,6 +15,12 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  
+  // Contact Modal State
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [sentSuccess, setSentSuccess] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -33,6 +39,21 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
     month: 'long',
     day: 'numeric'
   });
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSending(true);
+    // Simulate network request to email service
+    setTimeout(() => {
+      setIsSending(false);
+      setSentSuccess(true);
+      // Close modal after showing success message
+      setTimeout(() => {
+        setSentSuccess(false);
+        setIsContactModalOpen(false);
+      }, 2500);
+    }, 1500);
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
@@ -91,9 +112,17 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
           </button>
 
           <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
-            <p className="text-xs text-slate-400 uppercase font-semibold mb-1">Plan</p>
+            <div className="flex justify-between items-center mb-1">
+                <p className="text-xs text-slate-400 uppercase font-semibold">Plan</p>
+                <button 
+                  onClick={() => setIsPricingModalOpen(true)}
+                  className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase tracking-wider hover:underline"
+                >
+                  View Plans
+                </button>
+            </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-white font-mono text-[10px] opacity-50">SME Standard</span>
+              <span className="text-sm font-medium text-white font-mono opacity-90">SME Standard</span>
               <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Active</span>
             </div>
           </div>
@@ -136,6 +165,13 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
               >
                 {darkMode ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
                 <span>{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
+              </button>
+             <button
+                onClick={() => { setIsPricingModalOpen(true); setIsMobileMenuOpen(false); }}
+                className="w-full flex items-center space-x-3 px-4 py-4 rounded-lg text-lg text-slate-300"
+              >
+                <CreditCard className="w-6 h-6" />
+                <span>Plans & Pricing</span>
               </button>
              <button
                 onClick={() => { setIsAboutModalOpen(true); setIsMobileMenuOpen(false); }}
@@ -257,6 +293,204 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Plans & Pricing Modal */}
+      {isPricingModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm bg-black/60">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full p-8 relative ring-1 ring-slate-900/5 dark:ring-white/10 overflow-hidden max-h-[90vh] overflow-y-auto">
+                {/* Close Button */}
+                <button 
+                    onClick={() => setIsPricingModalOpen(false)} 
+                    className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full transition-colors z-10"
+                >
+                    <X className="w-6 h-6 text-gray-500 dark:text-slate-400" />
+                </button>
+
+                <div className="text-center mb-10">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Choose Your Level of Intelligence</h2>
+                    <p className="text-gray-500 dark:text-slate-400 text-lg">Scale your supply chain risk management as you grow.</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                {/* SME Standard */}
+                <div className="border-2 border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-2xl p-6 relative flex flex-col hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
+                    <div className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl">Current Plan</div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">SME Standard</h3>
+                    <div className="flex items-baseline mt-4 mb-2">
+                        <span className="text-4xl font-bold text-gray-900 dark:text-white">Free</span>
+                        <span className="text-sm font-normal text-gray-500 dark:text-slate-400 ml-2">/ forever</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">Perfect for small teams and independent analysis.</p>
+
+                    <ul className="space-y-4 mb-8 flex-1">
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-green-100 dark:bg-green-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-green-600 dark:text-green-400"/></div>
+                            Unlimited Vendor Profiles
+                        </li>
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-green-100 dark:bg-green-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-green-600 dark:text-green-400"/></div>
+                            AI Risk Scoring Engine
+                        </li>
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-green-100 dark:bg-green-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-green-600 dark:text-green-400"/></div>
+                            Global Disruption Alerts
+                        </li>
+                         <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-green-100 dark:bg-green-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-green-600 dark:text-green-400"/></div>
+                            Supply Chain Mapping
+                        </li>
+                    </ul>
+
+                    <div className="mt-auto pt-5 border-t border-indigo-200 dark:border-indigo-900/30">
+                        <div className="flex items-start">
+                            <Info className="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" />
+                            <p className="text-xs font-medium text-indigo-800 dark:text-indigo-300 leading-snug">
+                                This plan is free to use but requires a "Bring Your Own Key" (BYOK) setup for the Google Gemini API.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Premium */}
+                <div className="border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 rounded-2xl p-6 flex flex-col shadow-lg hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors relative">
+                     <div className="absolute top-0 right-0 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl border-b border-l border-gray-200 dark:border-slate-700">Recommended for Scale</div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Premium Enterprise</h3>
+                    <div className="flex items-baseline mt-4 mb-2">
+                        <span className="text-4xl font-bold text-gray-900 dark:text-white">Custom</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">For organizations requiring automated governance.</p>
+
+                    <ul className="space-y-4 mb-8 flex-1">
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-indigo-600 dark:text-indigo-400"/></div>
+                            Everything in Standard
+                        </li>
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-indigo-600 dark:text-indigo-400"/></div>
+                            Automated ERP Sync (SAP, Oracle)
+                        </li>
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-indigo-600 dark:text-indigo-400"/></div>
+                            Real-time Financial API (Bloomberg/D&B)
+                        </li>
+                        <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-indigo-600 dark:text-indigo-400"/></div>
+                            Dedicated Account Manager
+                        </li>
+                         <li className="flex items-center text-sm text-gray-700 dark:text-slate-300">
+                            <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1 rounded-full mr-3"><Check className="w-3 h-3 text-indigo-600 dark:text-indigo-400"/></div>
+                            Multi-user Access & Roles
+                        </li>
+                    </ul>
+
+                    <button 
+                        onClick={() => { setIsPricingModalOpen(false); setIsContactModalOpen(true); }}
+                        className="w-full py-3 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors shadow-lg"
+                    >
+                        Contact Sales
+                    </button>
+                </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Contact Sales Form Modal */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 backdrop-blur-sm bg-black/60">
+           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full relative ring-1 ring-slate-900/5 dark:ring-white/10 overflow-hidden">
+                <button 
+                    onClick={() => setIsContactModalOpen(false)} 
+                    className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full transition-colors z-10"
+                >
+                    <X className="w-5 h-5 text-gray-500 dark:text-slate-400" />
+                </button>
+
+                {sentSuccess ? (
+                    <div className="p-12 text-center animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Sent!</h2>
+                        <p className="text-gray-500 dark:text-slate-400">
+                            Thanks for reaching out. A member of our enterprise team will be in touch within 24 hours.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="p-8">
+                        <div className="mb-6">
+                            <div className="flex items-center space-x-2 mb-1 text-indigo-600 dark:text-indigo-400">
+                                <Mail className="w-5 h-5" />
+                                <span className="text-sm font-bold uppercase tracking-wider">Enterprise Inquiry</span>
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Sales Team</h2>
+                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+                                Fill out the details below to schedule a demo or discuss custom integration needs.
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleContactSubmit} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">First Name</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                                        <input required type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jane" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Last Name</label>
+                                    <input required type="text" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Doe" />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Work Email</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                                    <input required type="email" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="jane@company.com" />
+                                </div>
+                            </div>
+
+                             <div>
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Company Name</label>
+                                <div className="relative">
+                                    <Building className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                                    <input required type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Acme Corp" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Message / Requirements</label>
+                                <div className="relative">
+                                    <MessageSquare className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                                    <textarea required rows={4} className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="I am interested in the ERP integration features..." />
+                                </div>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                disabled={isSending}
+                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all flex items-center justify-center shadow-lg disabled:opacity-70 disabled:cursor-wait mt-2"
+                            >
+                                {isSending ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="w-5 h-5 mr-2" />
+                                        Send Inquiry
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                )}
+           </div>
         </div>
       )}
     </div>
