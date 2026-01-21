@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { LayoutDashboard, Users, Map, Bell, Settings, ShieldCheck, Menu, HelpCircle, X, Zap, Lock, Globe, Activity, ArrowRight, Moon, Sun, CreditCard, Check, Info, Mail, MessageSquare, Building, User, Send, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -40,19 +40,48 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
     day: 'numeric'
   });
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSending(true);
-    // Simulate network request to email service
-    setTimeout(() => {
-      setIsSending(false);
-      setSentSuccess(true);
-      // Close modal after showing success message
-      setTimeout(() => {
-        setSentSuccess(false);
-        setIsContactModalOpen(false);
-      }, 2500);
-    }, 1500);
+
+    // --- EMAILJS CONFIGURATION ---
+    const SERVICE_ID: string = 'service_g6g60x9';
+    const TEMPLATE_ID = 'template_ropue3u';
+    const PUBLIC_KEY = 'WVCfZDTYkymY5JHbL';
+
+    // Extract form data
+    const formData = new FormData(e.currentTarget);
+    const templateParams = {
+        from_name: `${formData.get('first_name')} ${formData.get('last_name')}`,
+        from_email: formData.get('email'),
+        company: formData.get('company'),
+        message: formData.get('message'),
+        to_name: 'Sales Team'
+    };
+
+    try {
+        if (SERVICE_ID === 'YOUR_SERVICE_ID') {
+            // Fallback simulation if user hasn't set keys yet
+            console.warn("EmailJS keys not set. Simulating success.");
+            await new Promise(resolve => setTimeout(resolve, 1500));
+        } else {
+            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+        }
+
+        setIsSending(false);
+        setSentSuccess(true);
+        
+        // Close modal after showing success message
+        setTimeout(() => {
+            setSentSuccess(false);
+            setIsContactModalOpen(false);
+        }, 2500);
+
+    } catch (error) {
+        console.error("EmailJS Error:", error);
+        setIsSending(false);
+        alert("Failed to send message. Please check your internet connection or try again later.");
+    }
   };
 
   return (
@@ -437,12 +466,12 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                                     <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">First Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                                        <input required type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jane" />
+                                        <input required name="first_name" type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jane" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Last Name</label>
-                                    <input required type="text" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Doe" />
+                                    <input required name="last_name" type="text" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Doe" />
                                 </div>
                             </div>
                             
@@ -450,7 +479,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                                 <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Work Email</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                                    <input required type="email" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="jane@company.com" />
+                                    <input required name="email" type="email" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="jane@company.com" />
                                 </div>
                             </div>
 
@@ -458,7 +487,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                                 <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Company Name</label>
                                 <div className="relative">
                                     <Building className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                                    <input required type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Acme Corp" />
+                                    <input required name="company" type="text" className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Acme Corp" />
                                 </div>
                             </div>
 
@@ -466,7 +495,7 @@ const Layout: React.FC<LayoutProps> = ({ children, alertCount, vendorCount, dark
                                 <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase mb-1">Message / Requirements</label>
                                 <div className="relative">
                                     <MessageSquare className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                                    <textarea required rows={4} className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="I am interested in the ERP integration features..." />
+                                    <textarea required name="message" rows={4} className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="I am interested in the ERP integration features..." />
                                 </div>
                             </div>
 
