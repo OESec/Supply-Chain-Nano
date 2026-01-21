@@ -5,9 +5,18 @@ import { RiskLevel, RiskScore } from "../types";
 // Initialize Gemini Client Lazily
 let ai: GoogleGenAI | null = null;
 
+const getApiKey = () => {
+    // Priority: Environment Variable > Local Storage
+    return process.env.API_KEY || localStorage.getItem('riskguard_api_key') || '';
+}
+
 const getAi = () => {
   if (!ai) {
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const key = getApiKey();
+    if (!key) {
+        console.warn("Gemini API Key is missing. Please enter it in Settings.");
+    }
+    ai = new GoogleGenAI({ apiKey: key });
   }
   return ai;
 };
@@ -21,7 +30,7 @@ const sanitize = (str: string): string => {
 
 const fetchAlphaVantageData = async (symbol: string) => {
   try {
-    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.API_KEY}`);
+    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${getApiKey()}`);
     const data = await response.json();
     const quote = data['Global Quote'];
     if (quote && quote['05. price']) {

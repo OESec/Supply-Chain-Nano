@@ -1,9 +1,22 @@
 
-import React from 'react';
-import { ToggleLeft, ToggleRight, Database, Server, Lock, Trash2, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ToggleLeft, ToggleRight, Database, Server, Lock, Trash2, RotateCcw, Eye, EyeOff } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const [erpConnected, setErpConnected] = React.useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [showKey, setShowKey] = useState(false);
+
+  useEffect(() => {
+    const storedKey = localStorage.getItem('riskguard_api_key');
+    if (storedKey) setApiKey(storedKey);
+  }, []);
+
+  const handleUpdateKey = () => {
+    localStorage.setItem('riskguard_api_key', apiKey.trim());
+    alert("API Key saved successfully. The application will reload to apply changes.");
+    window.location.reload();
+  };
 
   const handleResetData = () => {
     if (window.confirm("Are you sure you want to reset all data to default? This will clear all manually added vendors and alerts.")) {
@@ -65,11 +78,31 @@ const Settings: React.FC = () => {
              <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Google Gemini API Key</label>
                 <div className="flex space-x-2">
-                    <input type="password" value="************************" disabled className="flex-1 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-slate-400" />
-                    <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-900 dark:text-white">Update</button>
+                    <div className="relative flex-1">
+                        <input 
+                            type={showKey ? "text" : "password"} 
+                            value={apiKey} 
+                            onChange={(e) => setApiKey(e.target.value)}
+                            placeholder="Enter your API Key here..."
+                            className="w-full border border-gray-300 dark:border-slate-700 rounded-lg pl-3 pr-10 py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" 
+                        />
+                        <button 
+                            type="button"
+                            onClick={() => setShowKey(!showKey)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                        >
+                            {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                    </div>
+                    <button 
+                        onClick={handleUpdateKey}
+                        className="px-4 py-2 bg-indigo-600 text-white border border-transparent rounded-lg text-sm font-medium hover:bg-indigo-700 shadow-sm transition-colors"
+                    >
+                        Update
+                    </button>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
-                    Used for risk scoring and disruption prediction models.
+                    Used for risk scoring and disruption prediction models. The key is stored locally in your browser.
                 </p>
             </div>
         </div>
