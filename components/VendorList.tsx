@@ -92,12 +92,18 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
           errors.location = "Invalid characters in location";
       }
 
-      // 4. Website: Strict URL check if provided. Max 100.
+      // 4. Website: Strict URL check + TLD Whitelist
       if (newVendor.website) {
+          const tldWhitelist = ['com', 'org', 'net', 'edu', 'gov', 'io', 'co', 'uk', 'de', 'jp', 'fr', 'au', 'us', 'ca', 'cn', 'it', 'nl', 'se', 'no', 'es', 'mil', 'int', 'biz', 'info', 'tech', 'xyz', 'ai', 'me', 'tv'];
+          const urlPattern = /^https?:\/\/[a-zA-Z0-9-\.]+\.([a-z]{2,})(\/.*)?$/;
+          const match = newVendor.website.match(urlPattern);
+
           if (newVendor.website.length > 100) {
               errors.website = "URL too long";
-          } else if (!/^https?:\/\/[a-zA-Z0-9-\.]+\.[a-z]{2,}(\/.*)?$/.test(newVendor.website)) {
+          } else if (!match) {
               errors.website = "Must start with http:// or https:// and be a valid URL";
+          } else if (!tldWhitelist.includes(match[1].toLowerCase())) {
+               errors.website = `Unsupported domain extension (.${match[1]})`;
           }
       }
 
