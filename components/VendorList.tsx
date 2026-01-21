@@ -128,32 +128,6 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
     }
   };
 
-  // Helper to backfill history for new vendors so the chart isn't empty
-  const generateSyntheticHistory = (currentScore: number) => {
-    const history = [];
-    const today = new Date();
-    // Generate 6 months of history
-    for (let i = 5; i >= 0; i--) {
-        const d = new Date(today);
-        d.setMonth(today.getMonth() - i);
-        
-        let score;
-        if (i === 0) {
-            score = currentScore;
-        } else {
-            // Add realistic variance (+/- 10 points) for past data
-            const variance = Math.floor(Math.random() * 21) - 10;
-            score = Math.max(0, Math.min(100, currentScore + variance));
-        }
-
-        history.push({
-            date: d.toISOString().split('T')[0],
-            score: score
-        });
-    }
-    return history;
-  };
-
   const handleConfirmedAddVendor = async () => {
     setLoading(true);
     
@@ -176,7 +150,9 @@ const VendorList: React.FC<VendorListProps> = ({ vendors, setVendors }) => {
         integrationStatus: 'Manual',
         tier: 1, // Default
         notes: [],
-        riskHistory: generateSyntheticHistory(riskProfile.overall)
+        riskHistory: [
+          { date: new Date().toISOString().split('T')[0], score: riskProfile.overall }
+        ]
       };
 
       setVendors(prev => [...prev, vendor]);
